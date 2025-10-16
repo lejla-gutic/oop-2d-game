@@ -2,14 +2,17 @@ package si.um.feri.WheelGame;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 
 public class WheelGame extends ApplicationAdapter{
     private SpriteBatch batch;
-    private Texture wheelTexture;
+    private ShapeRenderer shapeRenderer;
+    private Texture wheelTexture, background;
     private OrthographicCamera camera;
 
     private static final float GAME_WIDTH = 800;
@@ -25,15 +28,18 @@ public class WheelGame extends ApplicationAdapter{
     @Override
     public void create() {
         batch = new SpriteBatch();
+        shapeRenderer = new ShapeRenderer();
         camera = new OrthographicCamera();
         camera.setToOrtho(false, GAME_WIDTH, GAME_HEIGHT);
 
+        background = new Texture("images/WheelGame/background.png");
+        background.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         wheelTexture = new Texture("images/WheelGame/wheel.png");
         wheelTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
         radius = 100;
         x = GAME_WIDTH - radius;
-        y = 100;
+        y = 200;
         speed = 200;
         angle = 0;
     }
@@ -44,6 +50,11 @@ public class WheelGame extends ApplicationAdapter{
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT);
+
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+        batch.draw(background, 0, 0, GAME_WIDTH, GAME_HEIGHT);
+        batch.end();
 
         // kretanje tocka po x osi u zavisnosti od smijera
         x += direction * speed * dt;
