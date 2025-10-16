@@ -9,12 +9,14 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.graphics.Texture;
 
 public class BallsGame extends ApplicationAdapter  {
     // crtanje
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
     private OrthographicCamera camera;
+    private Texture background;
 
     // polje svih loptica
     private Array<Ball> balls;
@@ -32,6 +34,10 @@ public class BallsGame extends ApplicationAdapter  {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, GAME_WIDTH, GAME_HEIGHT); // false znaci y osi ide prema gore (da se ne crta naopako)
 
+        background = new Texture("images/BallsGame/background.png");
+        background.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+
         balls = new Array<>();
     }
 
@@ -41,6 +47,11 @@ public class BallsGame extends ApplicationAdapter  {
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT);
+
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+        batch.draw(background, 0, 0, GAME_WIDTH, GAME_HEIGHT);
+        batch.end();
 
         // ako kliknem misem => stvori se nova loptica
         if (Gdx.input.justTouched()) {
@@ -68,6 +79,7 @@ public class BallsGame extends ApplicationAdapter  {
     public void dispose() {
         batch.dispose();
         shapeRenderer.dispose();
+        background.dispose();
     }
 
     class Ball {

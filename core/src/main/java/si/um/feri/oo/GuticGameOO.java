@@ -48,29 +48,29 @@ public class GuticGameOO extends ApplicationAdapter {
     @Override public void create() {
         batch = new SpriteBatch();  // batch - paket, SpriteBatech - crta sve slike u jednom potezu
 
-        background = new Texture("images/background.png");
-        playerPic = new Texture("images/player.png");
+        background = new Texture("images/GuticGame/background.png");
+        playerPic = new Texture("images/GuticGame/player.png");
         playerPic.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear); // za ljepsi izgled slike
 
-        strawberry = new Texture("images/strawberry.png");
+        strawberry = new Texture("images/GuticGame/strawberry.png");
         strawberry.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
-        hamburger = new Texture("images/hamburger.png");
+        hamburger = new Texture("images/GuticGame/hamburger.png");
         hamburger.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
-        shoe = new Texture("images/shoe.png");
+        shoe = new Texture("images/GuticGame/shoe.png");
         shoe.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
-        cd = new Texture("images/cd.png");
+        cd = new Texture("images/GuticGame/cd.png");
         cd.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
-        heartFull = new Texture("images/full_heart.png");
+        heartFull = new Texture("images/GuticGame/full_heart.png");
         heartFull.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
-        heartEmpty = new Texture("images/empty_heart.png");
+        heartEmpty = new Texture("images/GuticGame/empty_heart.png");
         heartEmpty.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
-        bullet = new Texture("images/bullet.png");
+        bullet = new Texture("images/GuticGame/bullet.png");
         bullet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
         camera = new OrthographicCamera();
