@@ -39,6 +39,7 @@ public class GuticGameOO extends ApplicationAdapter {
     private int lives = 3;
     private int maxLives = 3;
     private boolean gameOver = false;
+    private boolean paused = false;
 
     private float spawnTimer = 0f;
     private float spawnInterval = 0.9f;   // na početku ~svakih 0.9 s
@@ -225,6 +226,25 @@ public class GuticGameOO extends ApplicationAdapter {
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && !gameOver) {
             soundShoot.play(0.5f);
             spawnBullet();
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+            paused = !paused;
+        }
+
+        if (paused) {
+            ScreenUtils.clear(0, 0, 0, 1);
+            batch.begin();
+            batch.draw(background, 0, 0, GAME_AREA_W, GAME_AREA_H);
+
+            String pausedText = "PAUSED";
+            GlyphLayout layout = new GlyphLayout(fontBig, pausedText);
+            float x = (GAME_AREA_W - layout.width) / 2f;
+            float y = GAME_AREA_H / 2f;
+            fontBig.draw(batch, layout, x, y);
+
+            batch.end();
+            return;
         }
 
         spawnTimer += dt; // mjeri koliko je proslo od zadnjeg spawna (dodamo dt, vrijeme izmedju frameova)
