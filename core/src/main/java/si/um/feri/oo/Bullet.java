@@ -21,6 +21,7 @@ public class Bullet extends DynamicGameObject implements Pool.Poolable{
         // resetujem kada se metak oslobodi u pool
         x = -1000;
         y = -1000;
+        speed = 400f;
         activeBullet = false;
     }
 }

@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -26,7 +25,7 @@ public class GuticGameOO extends ApplicationAdapter {
     private OrthographicCamera camera;
     private Viewport viewport;  // razlicitim dimenzije
 
-    private Texture background, playerPic, strawberry, hamburger, shoe, cd, heartFull, heartEmpty, bullet; // slike koje prikazujem
+    private Texture background, playerPic, strawberry, hamburger, shoe, cd, heartFull, heartEmpty, bullet, powerStar, bubble; // slike koje prikazujem
 
     private Player player;
     private Array<FallingItem> items;
@@ -40,6 +39,10 @@ public class GuticGameOO extends ApplicationAdapter {
     private int maxLives = 3;
     private boolean gameOver = false;
     private boolean paused = false;
+
+    private boolean powerUpActive = false;
+    private float powerUpTimer = 0f;
+    private float powerUpDuration = 5f; // 5 sekundi zaštite
 
     private float spawnTimer = 0f;
     private float spawnInterval = 0.9f;   // na početku ~svakih 0.9 s
@@ -76,6 +79,13 @@ public class GuticGameOO extends ApplicationAdapter {
 
         bullet = new Texture("images/GuticGame/bullet.png");
         bullet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+        powerStar = new Texture("images/GuticGame/powerup.png");
+        powerStar.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+        bubble = new Texture("images/GuticGame/bubble.png");
+        bubble.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
 
         camera = new OrthographicCamera();
         viewport = new FitViewport(GAME_AREA_W, GAME_AREA_H, camera);
@@ -145,18 +155,24 @@ public class GuticGameOO extends ApplicationAdapter {
         item.speed = baseFallSpeed + MathUtils.random(-20f, 30f);
         item.isFood = MathUtils.randomBoolean(0.6f);
 
-        if (item.isFood) {
-            if (MathUtils.randomBoolean(0.5f)) {
-                item.texture = strawberry;
-            } else {
-                item.texture = hamburger;
-            }
+        if (MathUtils.randomBoolean(0.1f)) {
+            item.texture = powerStar;
+            item.isFood = true;
         }
         else {
-            if (MathUtils.randomBoolean(0.5f)) {
-                item.texture = cd;
+            // ako nije power-up → hrana ili loš predmet
+            item.isFood = MathUtils.randomBoolean(0.6f);
+
+            if (item.isFood) {
+                if (MathUtils.randomBoolean(0.5f))
+                    item.texture = strawberry;
+                else
+                    item.texture = hamburger;
             } else {
-                item.texture = shoe;
+                if (MathUtils.randomBoolean(0.5f))
+                    item.texture = cd;
+                else
+                    item.texture = shoe;
             }
         }
 
@@ -167,7 +183,7 @@ public class GuticGameOO extends ApplicationAdapter {
     private void spawnBullet() {
         Bullet b = bulletPool.obtain(); // uzmem jedan bullet iz poola
         b.activeBullet = true;
-        b.x = player.x + player.y / 2f - b.w / 2f;
+        b.x = player.x + player.w / 2f - b.w / 2f;
         b.y = player.y + player.h;
         b.speed = 400f;
         b.rect.setPosition(b.x, b.y);
@@ -220,6 +236,14 @@ public class GuticGameOO extends ApplicationAdapter {
         ScreenUtils.clear(0,0,0,1);
         float dt = Gdx.graphics.getDeltaTime(); // vrijeme koje je proslo od prethodnog frame - pomnozit cemo brzine s dt da bude neodvisno kretanje (spori i brzi racunar)
 
+        if (powerUpActive) {
+            powerUpTimer -= dt;
+            if (powerUpTimer <= 0f) {
+                powerUpActive = false;
+                powerUpTimer = 0f;
+            }
+        }
+
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) player.moveLeft(dt);
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) player.moveRight(dt);
 
@@ -260,14 +284,21 @@ public class GuticGameOO extends ApplicationAdapter {
 
             if (item.rect.overlaps(player.rect)) {
                 if (item.isFood) {
-                    score += 1;
-                    soundYum.play(0.6f);
+                    if (item.texture == powerStar) {
+                        powerUpActive = true;
+                        powerUpTimer = powerUpDuration;
+                    } else {
+                        score += 1;
+                        soundYum.play(0.6f);
+                    }
                 } else {
-                    lives -= 1;
-                    soundEw.play(0.8f);
-                    if (lives <= 0) {
-                        lives = 0;
-                        gameOver = true;
+                    if (!powerUpActive) { // samo ako nije zaštićen
+                        lives -= 1;
+                        soundEw.play(0.8f);
+                        if (lives <= 0) {
+                            lives = 0;
+                            gameOver = true;
+                        }
                     }
                 }
                 items.removeIndex(i);
@@ -276,7 +307,7 @@ public class GuticGameOO extends ApplicationAdapter {
             }
 
             if (item.y + item.h < 0) { // ispod dna
-                if (!item.isFood) {
+                if (!item.isFood && item.texture != powerStar && !powerUpActive) {
                     lives -= 1; // isto prvo oduzmi
                     if (lives <= 0) {
                         lives = 0;
@@ -302,6 +333,7 @@ public class GuticGameOO extends ApplicationAdapter {
                     score += 2;
 
                     items.removeIndex(j);
+                    bullets.removeIndex(i);
                     bulletPool.free(bullet);
                     break;
                 }
@@ -326,7 +358,23 @@ public class GuticGameOO extends ApplicationAdapter {
         for (Bullet b : bullets) {
             batch.draw(b.texture, b.x, b.y, b.w, b.h);
         }
+
         batch.draw(player.texture, player.x, player.y, player.w, player.h);
+
+
+        if (powerUpActive) {
+            float pulse = 1.0f + 0.1f * MathUtils.sin(Gdx.graphics.getFrameId() * 0.1f);
+
+            float bubbleW = player.w * 1.4f * pulse;
+            float bubbleH = player.h * 1.4f * pulse;
+            float bubbleX = player.x + player.w / 2f - bubbleW / 2f;
+            float bubbleY = player.y + player.h / 2f - bubbleH / 2f;
+
+            batch.setColor(1f, 1f, 1f, 0.8f); // lagano providno
+            batch.draw(bubble, bubbleX, bubbleY, bubbleW, bubbleH);
+            batch.setColor(1f, 1f, 1f, 1f); // reset boje
+        }
+
 
         String scoreText = "Score: " + score;
        // GlyphLayout scoreLayout = new GlyphLayout(fontSmall, scoreText);
@@ -359,6 +407,8 @@ public class GuticGameOO extends ApplicationAdapter {
         if (hamburger != null) hamburger.dispose();
         if (shoe != null) shoe.dispose();
         if (cd != null) cd.dispose();
+        if (powerStar != null) powerStar.dispose();
+        bubble.dispose();
         font.dispose();
         heartFull.dispose();
         heartEmpty.dispose();
