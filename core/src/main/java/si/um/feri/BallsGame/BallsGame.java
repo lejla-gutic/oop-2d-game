@@ -94,7 +94,7 @@ public class BallsGame extends ApplicationAdapter  {
             this.y = y;
             this.radius = MathUtils.random(15f, 50f);
             this.color = new Color (MathUtils.random(), MathUtils.random(), MathUtils.random(), 1);
-            this.speedY = MathUtils.random(200f, 600f); // poskoci prema gore random brzinom
+            this.speedY = 0f; // poskoci prema gore random brzinom
             this.accelerationY = MathUtils.random(-800f, -400f);; // sve kuglice imaju istu gravitaciju
         }
 

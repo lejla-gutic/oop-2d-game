@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.utils.Pool;
 
 public class GuticGameOO extends ApplicationAdapter {
     private static final float GAME_AREA_W = 800f, GAME_AREA_H = 800f;
@@ -30,6 +31,8 @@ public class GuticGameOO extends ApplicationAdapter {
     private Player player;
     private Array<FallingItem> items;
     private Array<Bullet> bullets;
+    private Pool<Bullet> bulletPool;
+    private Pool<FallingItem> itemPool;
 
     private int score = 0;
     private int hits = 0;
@@ -87,6 +90,26 @@ public class GuticGameOO extends ApplicationAdapter {
         items = new Array<>();
         bullets = new Array<>();
 
+        bulletPool = new Pool<Bullet>() {
+            @Override
+            protected Bullet newObject() {
+                float bw = 70f, bh = 70f;
+                float bx = 0, by = 0;
+                float bulletSpeed = 400f;
+                return new Bullet(bullet, bx, by, bw, bh, bulletSpeed);
+            }
+        };
+
+        itemPool = new Pool<FallingItem>() {
+            @Override
+            protected FallingItem newObject() {
+                float bw = 64f, bh = 64f;
+                float bx = 0, by = 0;
+                return new FallingItem(strawberry, 0, 0, 64, 64, baseFallSpeed, true);
+            }
+        };
+
+
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Baloo.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -111,40 +134,43 @@ public class GuticGameOO extends ApplicationAdapter {
     }
 
     private void spawnItem(){
-        boolean isFood = MathUtils.randomBoolean(0.6f); // // 70% hrana, 30% ne-hrana
+        FallingItem item = itemPool.obtain();
+        item.activeItem = true;
 
-        float w = 64f, h =64f;
-        float x = MathUtils.random(16f, GAME_AREA_W - w - 16f); // // slučajna X pozicija
-        float y = GAME_AREA_H + h; // kreni malo iznad vrha
+        item.w = 64f;
+        item.h = 64f;
+        item.x = MathUtils.random(16f, GAME_AREA_W - item.w - 16f);
+        item.y = GAME_AREA_H + item.h;
+        item.speed = baseFallSpeed + MathUtils.random(-20f, 30f);
+        item.isFood = MathUtils.randomBoolean(0.6f);
 
-        float fallSpeed = baseFallSpeed + MathUtils.random(-20f, 30f); // random brzina padanja
-
-        Texture texture;
-        if (isFood) {
+        if (item.isFood) {
             if (MathUtils.randomBoolean(0.5f)) {
-                texture = strawberry;
+                item.texture = strawberry;
             } else {
-                texture = hamburger;
+                item.texture = hamburger;
             }
         }
         else {
             if (MathUtils.randomBoolean(0.5f)) {
-                texture = cd;
+                item.texture = cd;
             } else {
-                texture = shoe;
+                item.texture = shoe;
             }
         }
 
-        items.add(new FallingItem(texture, x, y, w, h, fallSpeed, isFood));
+        item.rect.setPosition(item.x, item.y);
+        items.add(item);
     }
 
     private void spawnBullet() {
-        float bw = 70f, bh = 70f;
-        float bx = player.x + player.w / 2f - bw / 2f;
-        float by = player.y + player.h;
-        float bulletSpeed = 400f;
-
-        bullets.add(new Bullet(bullet, bx, by, bw, bh, bulletSpeed));
+        Bullet b = bulletPool.obtain(); // uzmem jedan bullet iz poola
+        b.activeBullet = true;
+        b.x = player.x + player.y / 2f - b.w / 2f;
+        b.y = player.y + player.h;
+        b.speed = 400f;
+        b.rect.setPosition(b.x, b.y);
+        bullets.add(b);
     }
 
     private void restartGame() {
@@ -225,6 +251,7 @@ public class GuticGameOO extends ApplicationAdapter {
                     }
                 }
                 items.removeIndex(i);
+                itemPool.free(item);
                 continue;
             }
 
@@ -237,6 +264,7 @@ public class GuticGameOO extends ApplicationAdapter {
                     }
                 }
                 items.removeIndex(i);
+                itemPool.free(item);
             }
         }
 
@@ -253,8 +281,8 @@ public class GuticGameOO extends ApplicationAdapter {
                     hits += 1;
                     score += 2;
 
-                    bullets.removeIndex(i);
                     items.removeIndex(j);
+                    bulletPool.free(bullet);
                     break;
                 }
             }
@@ -262,6 +290,7 @@ public class GuticGameOO extends ApplicationAdapter {
             // ako metak izadje iz ekrana, uklonim ga
             if (bullet.y > GAME_AREA_H) {
                 bullets.removeIndex(i);
+                bulletPool.free(bullet);
             }
         }
 
