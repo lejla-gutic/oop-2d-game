@@ -28,10 +28,10 @@ public class GuticGameOO extends ApplicationAdapter {
     private Texture background, playerPic, strawberry, hamburger, shoe, cd, heartFull, heartEmpty, bullet, powerStar, bubble; // slike koje prikazujem
 
     private Player player;
-    private Array<FallingItem> items;
+    private Array<FallingObject> items;
     private Array<Bullet> bullets;
     private Pool<Bullet> bulletPool;
-    private Pool<FallingItem> itemPool;
+    private Pool<FallingObject> itemPool;
 
     private int score = 0;
     private int hits = 0;
@@ -51,6 +51,34 @@ public class GuticGameOO extends ApplicationAdapter {
     private BitmapFont font, fontBig, fontSmall;
     private Sound soundYum, soundEw, soundShoot;
 
+    public void increaseScore(int amount) {
+        score += amount;
+    }
+
+    public void decreaseLife() {
+        lives -= 1;
+        if (lives <= 0) {
+            lives = 0;
+            gameOver = true;
+        }
+    }
+
+    public boolean hasShield() {
+        return powerUpActive;
+    }
+
+    public void activateShield(float duration) {
+        powerUpActive = true;
+        powerUpTimer = duration;
+    }
+
+    public void playYumSound() {
+        soundYum.play(0.6f);
+    }
+
+    public void playEwSound() {
+        soundEw.play(0.8f);
+    }
 
     @Override public void create() {
         batch = new SpriteBatch();  // batch - paket, SpriteBatech - crta sve slike u jednom potezu
@@ -111,16 +139,13 @@ public class GuticGameOO extends ApplicationAdapter {
             }
         };
 
-        itemPool = new Pool<FallingItem>() {
+        itemPool = new Pool<FallingObject>() {
             @Override
-            protected FallingItem newObject() {
-                float bw = 64f, bh = 64f;
-                float bx = 0, by = 0;
-                return new FallingItem(strawberry, 0, 0, 64, 64, baseFallSpeed, true);
+            protected FallingObject newObject() {
+                // privremeno — kasnije ćemo ga pretvoriti u pravi tip u spawnItem()
+                return new FoodItem(strawberry, 0, 0, 64, 64, baseFallSpeed);
             }
         };
-
-
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Baloo.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -144,41 +169,31 @@ public class GuticGameOO extends ApplicationAdapter {
         soundShoot = Gdx.audio.newSound(Gdx.files.internal("sounds/shoot.wav"));
     }
 
-    private void spawnItem(){
-        FallingItem item = itemPool.obtain();
+    private void spawnItem() {
+        float w = 64f, h = 64f;
+        float x = MathUtils.random(16f, GAME_AREA_W - w - 16f);
+        float y = GAME_AREA_H + h;
+        float speed = baseFallSpeed + MathUtils.random(-20f, 30f);
+
+        // nasumični izbor tipa
+        float random = MathUtils.random();
+        FallingObject item;
+
+        if (random < 0.1f) {
+            item = new PowerUpItem(powerStar, x, y, w, h, speed);
+        } else if (random < 0.7f) {
+            Texture tex = MathUtils.randomBoolean() ? strawberry : hamburger;
+            item = new FoodItem(tex, x, y, w, h, speed);
+        } else {
+            Texture tex = MathUtils.randomBoolean() ? cd : shoe;
+            item = new BadItem(tex, x, y, w, h, speed);
+        }
+
         item.activeItem = true;
-
-        item.w = 64f;
-        item.h = 64f;
-        item.x = MathUtils.random(16f, GAME_AREA_W - item.w - 16f);
-        item.y = GAME_AREA_H + item.h;
-        item.speed = baseFallSpeed + MathUtils.random(-20f, 30f);
-        item.isFood = MathUtils.randomBoolean(0.6f);
-
-        if (MathUtils.randomBoolean(0.1f)) {
-            item.texture = powerStar;
-            item.isFood = true;
-        }
-        else {
-            // ako nije power-up → hrana ili loš predmet
-            item.isFood = MathUtils.randomBoolean(0.6f);
-
-            if (item.isFood) {
-                if (MathUtils.randomBoolean(0.5f))
-                    item.texture = strawberry;
-                else
-                    item.texture = hamburger;
-            } else {
-                if (MathUtils.randomBoolean(0.5f))
-                    item.texture = cd;
-                else
-                    item.texture = shoe;
-            }
-        }
-
-        item.rect.setPosition(item.x, item.y);
+        // sada koristimo pooling samo za reciklirane instance
         items.add(item);
     }
+
 
     private void spawnBullet() {
         Bullet b = bulletPool.obtain(); // uzmem jedan bullet iz poola
@@ -279,36 +294,20 @@ public class GuticGameOO extends ApplicationAdapter {
 
         // objekti (azuriranje i sudari)
         for (int i = items.size - 1; i >= 0; i--) {
-            FallingItem item = items.get(i);
+            FallingObject item = items.get(i);
             item.update(dt); // padanje objekta
 
             if (item.rect.overlaps(player.rect)) {
-                if (item.isFood) {
-                    if (item.texture == powerStar) {
-                        powerUpActive = true;
-                        powerUpTimer = powerUpDuration;
-                    } else {
-                        score += 1;
-                        soundYum.play(0.6f);
-                    }
-                } else {
-                    if (!powerUpActive) { // samo ako nije zaštićen
-                        lives -= 1;
-                        soundEw.play(0.8f);
-                        if (lives <= 0) {
-                            lives = 0;
-                            gameOver = true;
-                        }
-                    }
-                }
+                item.onCollision(this); // svaki tip zna šta radi
                 items.removeIndex(i);
                 itemPool.free(item);
                 continue;
             }
 
-            if (item.y + item.h < 0) { // ispod dna
-                if (!item.isFood && item.texture != powerStar && !powerUpActive) {
-                    lives -= 1; // isto prvo oduzmi
+            if (item.y + item.h < 0) {
+                // Ako padne ispod ekrana, kazni igrača samo ako nije PowerUp ili hrana
+                if (item instanceof BadItem && !powerUpActive) {
+                    lives -= 1;
                     if (lives <= 0) {
                         lives = 0;
                         gameOver = true;
@@ -326,13 +325,15 @@ public class GuticGameOO extends ApplicationAdapter {
 
             // provjerim sudar s padajucim objektima
             for (int j = items.size - 1; j >= 0; j--) {
-                FallingItem item = items.get(j);
+                FallingObject item = items.get(j);
 
-                if (!item.isFood && bullet.rect.overlaps(item.rect)) {
+                if (item instanceof BadItem && bullet.rect.overlaps(item.rect)) {
                     hits += 1;
                     score += 2;
 
+                    // ukloni taj objekt
                     items.removeIndex(j);
+                    // oslobodi metak
                     bullets.removeIndex(i);
                     bulletPool.free(bullet);
                     break;
@@ -353,7 +354,7 @@ public class GuticGameOO extends ApplicationAdapter {
 
         batch.draw(background, 0, 0, GAME_AREA_W, GAME_AREA_H);
 
-        for (FallingItem item : items)
+        for (FallingObject item : items)
             batch.draw(item.texture, item.x, item.y, item.w, item.h);
         for (Bullet b : bullets) {
             batch.draw(b.texture, b.x, b.y, b.w, b.h);

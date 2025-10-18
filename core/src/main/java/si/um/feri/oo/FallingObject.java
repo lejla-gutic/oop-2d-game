@@ -3,13 +3,11 @@ package si.um.feri.oo;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Pool;
 
-public class FallingItem extends DynamicGameObject implements Pool.Poolable{
-    public boolean isFood;
+public abstract class FallingObject extends DynamicGameObject implements Pool.Poolable{
     public boolean activeItem = false;
 
-    public FallingItem(Texture texture, float x, float y, float w, float h, float speed, boolean isFood) {
+    public FallingObject(Texture texture, float x, float y, float w, float h, float speed) {
         super(texture, x, y, w, h, speed);
-        this.isFood = isFood;
     }
 
     @Override
@@ -23,7 +21,8 @@ public class FallingItem extends DynamicGameObject implements Pool.Poolable{
     public void reset() {
         x = 0;
         y = 0;
-        isFood = false;
         activeItem = false;
     }
+
+    public abstract void onCollision(GuticGameOO game);
 }
