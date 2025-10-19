@@ -20,9 +20,8 @@ public class WheelGame extends ApplicationAdapter{
 
     private float x, y;
     private float radius;
-    private float speed; // korizontalna brzina
-    private float angle; // ugao rotacije
-
+    private float speed; // horizontalna hitrost
+    private float angle; // kot rotacije
     private int direction = 1;
 
     @Override
@@ -34,11 +33,12 @@ public class WheelGame extends ApplicationAdapter{
 
         background = new Texture("images/WheelGame/background.png");
         background.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
         wheelTexture = new Texture("images/WheelGame/wheel.png");
         wheelTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
         radius = 100;
-        x = GAME_WIDTH - radius;
+        x = radius;
         y = 200;
         speed = 200;
         angle = 0;
@@ -59,13 +59,12 @@ public class WheelGame extends ApplicationAdapter{
         // kretanje tocka po x osi u zavisnosti od smijera
         x += direction * speed * dt;
 
-        // ako predje ekran, vrati se na pocetak
+
         if (x + radius >= GAME_WIDTH) {
             x = GAME_WIDTH - radius;
             direction = -1;
         }
 
-        // kada udari u lijevi zid
         if (x - radius <= 0) {
             x = radius;
             direction = 1;
@@ -74,11 +73,9 @@ public class WheelGame extends ApplicationAdapter{
         // Rotacija (sinhronizovana s kretanjem)
         angle -= direction * (speed * dt * 360) / (2 * MathUtils.PI * radius);
 
-        // crtanje
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
-        //  x - radius, y - radius,   // pomjeri sliku tako da centar slike bude na (x, y)
         batch.draw(wheelTexture, x - radius, y - radius, radius, radius, radius * 2, radius * 2, 1, 1, angle, 0, 0, wheelTexture.getWidth(), wheelTexture.getHeight(), false, false);
         batch.end();
     }

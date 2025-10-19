@@ -12,31 +12,27 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.graphics.Texture;
 
 public class BallsGame extends ApplicationAdapter  {
-    // crtanje
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
     private OrthographicCamera camera;
     private Texture background;
 
-    // polje svih loptica
     private Array<Ball> balls;
 
-    // konstante igrice
     private static final float GAME_WIDTH = 800;
     private static final float GAME_HEIGHT = 800;
-    private static final float GRAVITY = -600f; // px/s^2 (negativno = prema dolje)
-    private static final float BOUNCE_LOSS = 0.8f; // KOLIKI DIO BRZINE ZADRZI PRI ODBIJANJU (80%)
+   // private static final float GRAVITY = -600f; // prema dolje
+    private static final float BOUNCE_LOSS = 0.8f; // brzina koju obdrzi pri odbijanju (80%)
 
     @Override
     public void create() {
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, GAME_WIDTH, GAME_HEIGHT); // false znaci y osi ide prema gore (da se ne crta naopako)
+        camera.setToOrtho(false, GAME_WIDTH, GAME_HEIGHT); // false -> y raste ka gore, (0,0) je donji lijevi ugao
 
         background = new Texture("images/BallsGame/background.png");
         background.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-
 
         balls = new Array<>();
     }
@@ -53,14 +49,13 @@ public class BallsGame extends ApplicationAdapter  {
         batch.draw(background, 0, 0, GAME_WIDTH, GAME_HEIGHT);
         batch.end();
 
-        // ako kliknem misem => stvori se nova loptica
+        // ustvari se ball
         if (Gdx.input.justTouched()) {
             float x = Gdx.input.getX();
             float y = GAME_HEIGHT - Gdx.input.getY();
             balls.add(new Ball(x, y));
         }
 
-        // azuriranje fizike svake loptice
         for (Ball i : balls) {
             i.update(dt);
         }
@@ -80,42 +75,6 @@ public class BallsGame extends ApplicationAdapter  {
         batch.dispose();
         shapeRenderer.dispose();
         background.dispose();
-    }
-
-    class Ball {
-        float x, y;
-        float radius;
-        float speedY;
-        float accelerationY;
-        Color color;
-
-        Ball(float x, float y) {
-            this.x = x;
-            this.y = y;
-            this.radius = MathUtils.random(15f, 50f);
-            this.color = new Color (MathUtils.random(), MathUtils.random(), MathUtils.random(), 1);
-            this.speedY = 0f; // poskoci prema gore random brzinom
-            this.accelerationY = MathUtils.random(-800f, -400f);; // sve kuglice imaju istu gravitaciju
-        }
-
-        void update(float dt) {
-            speedY += accelerationY * dt;
-
-            y += speedY * dt;
-
-            if (y - radius < 0) {
-                y = radius;
-                speedY = -speedY * BOUNCE_LOSS; // obrne smjer i izgubi energiju
-            }
-
-            if (x - radius < 0) {
-                x = radius;
-            }
-            if (x + radius > GAME_WIDTH) {
-                x = GAME_WIDTH - radius;
-            }
-        }
-
     }
 
 
