@@ -9,7 +9,7 @@ public class BadItem extends FallingObject {
     @Override
     public void onCollision(GuticGameOO game) {
         if (!game.hasShield()) {
-            game.decreaseLife();
+            game.getScoreSystem().loseLife();
             game.playEwSound();
         }
     }

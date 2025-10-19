@@ -9,6 +9,5 @@ public abstract class DynamicGameObject extends GameObject{
         this.speed = speed;
     }
 
-    // poziva se svakog frame-a, dt => koliko je vremena proslo od zadnjeg frame-a
     public abstract void update(float dt);
 }

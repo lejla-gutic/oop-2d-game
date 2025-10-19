@@ -9,7 +9,7 @@ public class FoodItem extends FallingObject {
 
     @Override
     public void onCollision(GuticGameOO game) {
-        game.increaseScore(1);
+        game.getScoreSystem().addPoints(1);
         game.playYumSound();
     }
 }

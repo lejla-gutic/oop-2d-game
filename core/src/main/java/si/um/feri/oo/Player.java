@@ -28,7 +28,6 @@ public class Player extends GameObject {
         rect.setPosition(x, y);
     }
 
-    // pravougaonik za sudar
     public Rectangle getRect() {
         return rect;
     }

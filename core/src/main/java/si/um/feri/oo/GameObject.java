@@ -17,7 +17,7 @@ public class GameObject {
         this.w = w;
         this.h = h;
 
-        rect.set(x, y, w, h);   // postavim granice pravougaonika
+        rect.set(x, y, w, h);
     }
 
 
