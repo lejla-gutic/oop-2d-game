@@ -31,8 +31,9 @@ public class GuticGameOO extends ApplicationAdapter {
     private Array<FallingObject> items;
     private Array<Bullet> bullets;
     private Pool<Bullet> bulletPool;
-    private Pool<FallingObject> itemPool;
-
+    private Pool<FoodItem> foodItemPool;
+    private Pool<BadItem> badItemPool;
+    private Pool<PowerUpItem> powerUpPool;
     private Score scoreSystem;
     private final int START_LIVES= 3;
     private int hits = 0;
@@ -130,10 +131,24 @@ public class GuticGameOO extends ApplicationAdapter {
             }
         };
 
-        itemPool = new Pool<FallingObject>() {
+        foodItemPool = new Pool<FoodItem>() {
             @Override
-            protected FallingObject newObject() {
+            protected FoodItem newObject() {
                 return new FoodItem(strawberry, 0, 0, 64, 64, baseFallSpeed);
+            }
+        };
+
+        badItemPool = new Pool<BadItem>() {
+            @Override
+            protected BadItem newObject() {
+                return new BadItem(cd, 0, 0, 64, 64, baseFallSpeed);
+            }
+        };
+
+        powerUpPool = new Pool<PowerUpItem>() {
+            @Override
+            protected PowerUpItem newObject() {
+                return new PowerUpItem(powerStar, 0, 0, 64, 64, baseFallSpeed);
             }
         };
 
@@ -217,16 +232,31 @@ public class GuticGameOO extends ApplicationAdapter {
             if (item.rect.overlaps(player.rect)) {
                 item.onCollision(this);
                 items.removeIndex(i);
-                itemPool.free(item);
+
+                if (item instanceof FoodItem) {
+                    foodItemPool.free((FoodItem) item);
+                } else if (item instanceof BadItem) {
+                    badItemPool.free((BadItem) item);
+                } else if (item instanceof PowerUpItem) {
+                    powerUpPool.free((PowerUpItem) item);
+                }
+
                 continue;
             }
 
             if (item.y + item.h < 0) {
                 if (item instanceof BadItem && !powerUpActive) {
                     scoreSystem.loseLife();
+                }items.removeIndex(i);
+
+                if (item instanceof FoodItem) {
+                    foodItemPool.free((FoodItem) item);
+                } else if (item instanceof BadItem) {
+                    badItemPool.free((BadItem) item);
+                } else if (item instanceof PowerUpItem) {
+                    powerUpPool.free((PowerUpItem) item);
                 }
-                items.removeIndex(i);
-                itemPool.free(item);
+
             }
         }
 
@@ -312,15 +342,22 @@ public class GuticGameOO extends ApplicationAdapter {
         FallingObject item;
 
         if (random < 0.1f) {
-            item = new PowerUpItem(powerStar, x, y, w, h, speed);
+            item = powerUpPool.obtain();
+            item.texture = powerStar;
         } else if (random < 0.7f) {
-            Texture tex = MathUtils.randomBoolean() ? strawberry : hamburger;
-            item = new FoodItem(tex, x, y, w, h, speed);
+            item = foodItemPool.obtain();
+            item.texture = MathUtils.randomBoolean() ? strawberry : hamburger;
         } else {
-            Texture tex = MathUtils.randomBoolean() ? cd : shoe;
-            item = new BadItem(tex, x, y, w, h, speed);
+            item = badItemPool.obtain();
+            item.texture = MathUtils.randomBoolean() ? cd : shoe;
         }
 
+        item.x = x;
+        item.y = y;
+        item.w = w;
+        item.h = h;
+        item.speed = speed;
+        item.rect.setPosition(x, y);
         item.activeItem = true;
         items.add(item);
     }

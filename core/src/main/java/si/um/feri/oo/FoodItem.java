@@ -1,6 +1,7 @@
 package si.um.feri.oo;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.utils.Pool;
 
 public class FoodItem extends FallingObject {
     public FoodItem(Texture texture, float x, float y, float w, float h, float speed) {

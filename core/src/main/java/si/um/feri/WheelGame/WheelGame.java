@@ -59,7 +59,6 @@ public class WheelGame extends ApplicationAdapter{
         // kretanje tocka po x osi u zavisnosti od smijera
         x += direction * speed * dt;
 
-
         if (x + radius >= GAME_WIDTH) {
             x = GAME_WIDTH - radius;
             direction = -1;
@@ -70,7 +69,6 @@ public class WheelGame extends ApplicationAdapter{
             direction = 1;
         }
 
-        // Rotacija (sinhronizovana s kretanjem)
         angle -= direction * (speed * dt * 360) / (2 * MathUtils.PI * radius);
 
         batch.setProjectionMatrix(camera.combined);
