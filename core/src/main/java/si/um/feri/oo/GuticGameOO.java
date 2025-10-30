@@ -17,6 +17,10 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.utils.Pool;
+import si.um.feri.util.debug.DebugCameraController;
+import si.um.feri.util.debug.MemoryInfo;
+import si.um.feri.util.ViewportUtils;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class GuticGameOO extends ApplicationAdapter {
     private static final float GAME_AREA_W = 800f, GAME_AREA_H = 800f;
@@ -50,6 +54,11 @@ public class GuticGameOO extends ApplicationAdapter {
 
     private BitmapFont font, fontBig, fontSmall;
     private Sound soundYum, soundEw, soundShoot;
+
+    private boolean debug = false;
+    private DebugCameraController debugCameraController;
+    private MemoryInfo memoryInfo;
+    private ShapeRenderer shapeRenderer;
 
     public Score getScoreSystem() {
         return scoreSystem;
@@ -172,6 +181,12 @@ public class GuticGameOO extends ApplicationAdapter {
         soundYum = Gdx.audio.newSound(Gdx.files.internal("sounds/yum.wav"));
         soundEw = Gdx.audio.newSound(Gdx.files.internal("sounds/ew.wav"));
         soundShoot = Gdx.audio.newSound(Gdx.files.internal("sounds/shoot.wav"));
+
+        // DEBUG
+        debugCameraController = new DebugCameraController();
+        debugCameraController.setStartPosition(GAME_AREA_W / 2f, GAME_AREA_H / 2f);
+        memoryInfo = new MemoryInfo(500);
+        shapeRenderer = new ShapeRenderer();
     }
 
     @Override public void render() {
@@ -182,6 +197,13 @@ public class GuticGameOO extends ApplicationAdapter {
 
         ScreenUtils.clear(0,0,0,1);
         float dt = Gdx.graphics.getDeltaTime();
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) debug = !debug;
+
+        if (debug) {
+            debugCameraController.handleDebugInput(dt);
+            memoryInfo.update();
+        }
 
         if (powerUpActive) {
             powerUpTimer -= dt; // vsaki frame odstejem cas ki je poteko
@@ -330,6 +352,32 @@ public class GuticGameOO extends ApplicationAdapter {
         }
 
         batch.end();
+
+        if (debug) {
+            debugCameraController.applyTo(camera);
+
+            // tekstualne informacije
+            batch.begin();
+            fontSmall.setColor(Color.YELLOW);
+            fontSmall.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), GAME_AREA_W - 120, GAME_AREA_H - 20);
+            memoryInfo.render(batch, fontSmall);
+            batch.end();
+
+            // mreža
+            ViewportUtils.drawGrid(viewport, shapeRenderer, 50);
+
+            shapeRenderer.setProjectionMatrix(camera.combined);
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(1, 1, 0, 1);
+            shapeRenderer.rect(player.x, player.y, player.w, player.h);
+
+            for (FallingObject item : items)
+                shapeRenderer.rect(item.x, item.y, item.w, item.h);
+            for (Bullet b : bullets)
+                shapeRenderer.rect(b.x, b.y, b.w, b.h);
+
+            shapeRenderer.end();
+        }
     }
 
     private void spawnItem() {
@@ -428,6 +476,7 @@ public class GuticGameOO extends ApplicationAdapter {
         font.dispose();
         fontBig.dispose();
         fontSmall.dispose();
+        shapeRenderer.dispose();
     }
 }
 
