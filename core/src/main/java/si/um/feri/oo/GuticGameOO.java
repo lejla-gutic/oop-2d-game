@@ -30,7 +30,7 @@ public class GuticGameOO extends ApplicationAdapter {
     private OrthographicCamera camera;
     private Viewport viewport;
 
-    private Texture background, playerPic, strawberry, hamburger, shoe, cd, heartFull, heartEmpty, bullet, powerStar, bubble;
+    private Texture background, playerPic, strawberry, hamburger, shoe, cd, bullet, powerStar, bubble;
 
     private Player player;
     private Array<FallingObject> items;
@@ -60,9 +60,6 @@ public class GuticGameOO extends ApplicationAdapter {
     private DebugCameraController debugCameraController;
     private MemoryInfo memoryInfo;
     private ShapeRenderer shapeRenderer;
-    private ParticleEffect heartGlow;
-    private ParticleEffect[] heartGlows;
-
     public Score getScoreSystem() {
         return scoreSystem;
     }
@@ -103,12 +100,6 @@ public class GuticGameOO extends ApplicationAdapter {
         cd = new Texture("images/GuticGame/cd.png");
         cd.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
-        heartFull = new Texture("images/GuticGame/full_heart.png");
-        heartFull.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-
-        heartEmpty = new Texture("images/GuticGame/empty_heart.png");
-        heartEmpty.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-
         bullet = new Texture("images/GuticGame/bullet.png");
         bullet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
@@ -117,13 +108,6 @@ public class GuticGameOO extends ApplicationAdapter {
 
         bubble = new Texture("images/GuticGame/bubble.png");
         bubble.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-
-        heartGlows = new ParticleEffect[START_LIVES];
-        for (int i = 0; i < START_LIVES; i++) {
-            heartGlows[i] = new ParticleEffect();
-            heartGlows[i].load(Gdx.files.internal("particles/glow.p"), Gdx.files.internal("particles"));
-            heartGlows[i].start();
-        }
 
         camera = new OrthographicCamera();
         viewport = new FitViewport(GAME_AREA_W, GAME_AREA_H, camera);
@@ -363,19 +347,7 @@ public class GuticGameOO extends ApplicationAdapter {
         float startX = GAME_AREA_W - totalWidth - 20f;
         float y = GAME_AREA_H - 48f;
 
-        for (int i = 0; i < START_LIVES; i++) {
-            float hx = startX + i * (heartSize + spacing) + heartSize / 2f;
-            float hy = y + heartSize / 2f;
-
-            if (i < scoreSystem.getLives()) {
-                heartGlows[i].setPosition(hx, hy);
-                heartGlows[i].update(Gdx.graphics.getDeltaTime());
-                heartGlows[i].draw(batch);
-            }
-
-            Texture current = (i < scoreSystem.getLives()) ? heartFull : heartEmpty;
-            batch.draw(current, startX + i * (heartSize + spacing), y, heartSize, heartSize);
-        }
+        scoreSystem.render(batch);
 
         batch.end();
 
@@ -450,11 +422,6 @@ public class GuticGameOO extends ApplicationAdapter {
         scoreSystem.reset(START_LIVES);
         items.clear();
         bullets.clear();
-
-        for (ParticleEffect effect : heartGlows) {
-            effect.reset();
-            effect.start();
-        }
     }
 
     private void drawGameOver() {
@@ -498,8 +465,6 @@ public class GuticGameOO extends ApplicationAdapter {
         powerStar.dispose();
         bubble.dispose();
         font.dispose();
-        heartFull.dispose();
-        heartEmpty.dispose();
         bullet.dispose();
         soundYum.dispose();
         soundEw.dispose();
@@ -513,9 +478,7 @@ public class GuticGameOO extends ApplicationAdapter {
                 ((PowerUpItem) item).dispose();
             }
         }
-        for (ParticleEffect effect : heartGlows) {
-            effect.dispose();
-        }
+        scoreSystem.dispose();
     }
 }
 
