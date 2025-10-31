@@ -21,6 +21,7 @@ import si.um.feri.util.debug.DebugCameraController;
 import si.um.feri.util.debug.MemoryInfo;
 import si.um.feri.util.ViewportUtils;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 
 public class GuticGameOO extends ApplicationAdapter {
     private static final float GAME_AREA_W = 800f, GAME_AREA_H = 800f;
@@ -59,6 +60,8 @@ public class GuticGameOO extends ApplicationAdapter {
     private DebugCameraController debugCameraController;
     private MemoryInfo memoryInfo;
     private ShapeRenderer shapeRenderer;
+    private ParticleEffect heartGlow;
+    private ParticleEffect[] heartGlows;
 
     public Score getScoreSystem() {
         return scoreSystem;
@@ -114,6 +117,13 @@ public class GuticGameOO extends ApplicationAdapter {
 
         bubble = new Texture("images/GuticGame/bubble.png");
         bubble.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+        heartGlows = new ParticleEffect[START_LIVES];
+        for (int i = 0; i < START_LIVES; i++) {
+            heartGlows[i] = new ParticleEffect();
+            heartGlows[i].load(Gdx.files.internal("particles/glow.p"), Gdx.files.internal("particles"));
+            heartGlows[i].start();
+        }
 
         camera = new OrthographicCamera();
         viewport = new FitViewport(GAME_AREA_W, GAME_AREA_H, camera);
@@ -354,6 +364,15 @@ public class GuticGameOO extends ApplicationAdapter {
         float y = GAME_AREA_H - 48f;
 
         for (int i = 0; i < START_LIVES; i++) {
+            float hx = startX + i * (heartSize + spacing) + heartSize / 2f;
+            float hy = y + heartSize / 2f;
+
+            if (i < scoreSystem.getLives()) {
+                heartGlows[i].setPosition(hx, hy);
+                heartGlows[i].update(Gdx.graphics.getDeltaTime());
+                heartGlows[i].draw(batch);
+            }
+
             Texture current = (i < scoreSystem.getLives()) ? heartFull : heartEmpty;
             batch.draw(current, startX + i * (heartSize + spacing), y, heartSize, heartSize);
         }
@@ -431,6 +450,11 @@ public class GuticGameOO extends ApplicationAdapter {
         scoreSystem.reset(START_LIVES);
         items.clear();
         bullets.clear();
+
+        for (ParticleEffect effect : heartGlows) {
+            effect.reset();
+            effect.start();
+        }
     }
 
     private void drawGameOver() {
@@ -488,6 +512,9 @@ public class GuticGameOO extends ApplicationAdapter {
             if (item instanceof PowerUpItem) {
                 ((PowerUpItem) item).dispose();
             }
+        }
+        for (ParticleEffect effect : heartGlows) {
+            effect.dispose();
         }
     }
 }
