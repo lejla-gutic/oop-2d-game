@@ -253,6 +253,7 @@ public class GuticGameOO extends ApplicationAdapter {
 
             if (item.rect.overlaps(player.rect)) {
                 item.onCollision(this);
+
                 items.removeIndex(i);
 
                 if (item instanceof FoodItem) {
@@ -269,7 +270,8 @@ public class GuticGameOO extends ApplicationAdapter {
             if (item.y + item.h < 0) {
                 if (item instanceof BadItem && !powerUpActive) {
                     scoreSystem.loseLife();
-                }items.removeIndex(i);
+                }
+                items.removeIndex(i);
 
                 if (item instanceof FoodItem) {
                     foodItemPool.free((FoodItem) item);
@@ -314,8 +316,13 @@ public class GuticGameOO extends ApplicationAdapter {
 
         batch.draw(background, 0, 0, GAME_AREA_W, GAME_AREA_H);
 
-        for (FallingObject item : items)
+        for (FallingObject item : items) {
             batch.draw(item.texture, item.x, item.y, item.w, item.h);
+
+            if (item instanceof PowerUpItem) {
+                ((PowerUpItem) item).drawEffect(batch);
+            }
+        }
         for (Bullet b : bullets) {
             batch.draw(b.texture, b.x, b.y, b.w, b.h);
         }
@@ -477,6 +484,11 @@ public class GuticGameOO extends ApplicationAdapter {
         fontBig.dispose();
         fontSmall.dispose();
         shapeRenderer.dispose();
+        for (FallingObject item : items) {
+            if (item instanceof PowerUpItem) {
+                ((PowerUpItem) item).dispose();
+            }
+        }
     }
 }
 
