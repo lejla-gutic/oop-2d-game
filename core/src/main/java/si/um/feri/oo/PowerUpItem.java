@@ -15,7 +15,7 @@ public class PowerUpItem extends FallingObject{
 
     @Override
     public void reset() {
-        super.reset(); // poziva reset iz FallingObject
+        super.reset();
         sparkleEffect.reset();
         sparkleEffect.start();
     }

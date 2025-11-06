@@ -20,9 +20,6 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.audio.Sound;
 
-import si.um.feri.Gutic.Bullet;
-import si.um.feri.Gutic.FallingItem;
-
 public class GuticGameWorldUnits extends ApplicationAdapter {
     private SpriteBatch batch;
     private Texture background, player, strawberry, hamburger, shoe, cd, heartFull, heartEmpty, bullet;
@@ -41,8 +38,8 @@ public class GuticGameWorldUnits extends ApplicationAdapter {
     private int hits = 0;
     private boolean gameOver = false;
 
-    private Array<si.um.feri.Gutic.FallingItem> items;
-    private Array<si.um.feri.Gutic.Bullet> bullets = new Array<>();
+    private Array<FallingItem> items;
+    private Array<Bullet> bullets = new Array<>();
 
     private float spawnTimer = 0f;
     private float spawnInterval = 0.9f;
@@ -81,7 +78,7 @@ public class GuticGameWorldUnits extends ApplicationAdapter {
             }
         }
 
-        items.add(new si.um.feri.Gutic.FallingItem(texture, x, y, w, h, fallSpeed, isFood));
+        items.add(new FallingItem(texture, x, y, w, h, fallSpeed, isFood));
     }
 
     private void spawnBullet() {
@@ -89,7 +86,7 @@ public class GuticGameWorldUnits extends ApplicationAdapter {
         float bx = playerX + playerW/2f - bw/2f;
         float by = playerY + playerH;
         float bulletSpeed = 8f;
-        bullets.add(new si.um.feri.Gutic.Bullet(bullet, bx, by, bw, bh, bulletSpeed));
+        bullets.add(new Bullet(bullet, bx, by, bw, bh, bulletSpeed));
     }
 
     private void restartGame() {
@@ -230,7 +227,7 @@ public class GuticGameWorldUnits extends ApplicationAdapter {
         Rectangle playerRect = new Rectangle(playerX, playerY, playerW, playerH);
         // objekti
         for (int i = items.size - 1; i >= 0; i--) {
-            si.um.feri.Gutic.FallingItem item = items.get(i);
+            FallingItem item = items.get(i);
             item.update(dt);
 
             if (item.rect.overlaps(playerRect)) {
@@ -263,11 +260,11 @@ public class GuticGameWorldUnits extends ApplicationAdapter {
 
         // update metaka
         for (int i = bullets.size - 1; i >= 0; i--) {
-            si.um.feri.Gutic.Bullet bullet = bullets.get(i);
+            Bullet bullet = bullets.get(i);
             bullet.update(dt);
 
             for (int j = items.size - 1; j >= 0; j--) {
-                si.um.feri.Gutic.FallingItem item = items.get(j);
+                FallingItem item = items.get(j);
 
                 if (!item.isFood && bullet.rect.overlaps(item.rect)) {
                     hits += 1;

@@ -60,6 +60,7 @@ public class GuticGameOO extends ApplicationAdapter {
     private DebugCameraController debugCameraController;
     private MemoryInfo memoryInfo;
     private ShapeRenderer shapeRenderer;
+
     public Score getScoreSystem() {
         return scoreSystem;
     }
@@ -200,7 +201,7 @@ public class GuticGameOO extends ApplicationAdapter {
         }
 
         if (powerUpActive) {
-            powerUpTimer -= dt; // vsaki frame odstejem cas ki je poteko
+            powerUpTimer -= dt;
             if (powerUpTimer <= 0f) {
                 powerUpActive = false;
                 powerUpTimer = 0f;
@@ -297,7 +298,6 @@ public class GuticGameOO extends ApplicationAdapter {
                 }
             }
 
-            // ako metak izadje izvan, uklonim ga
             if (bullet.y > GAME_AREA_H) {
                 bullets.removeIndex(i);
                 bulletPool.free(bullet);
@@ -387,7 +387,7 @@ public class GuticGameOO extends ApplicationAdapter {
         float random = MathUtils.random();
         FallingObject item;
 
-        if (random < 0.1f) {
+        if (random < 0.3f) {
             item = powerUpPool.obtain();
             item.texture = powerStar;
         } else if (random < 0.7f) {
@@ -420,7 +420,22 @@ public class GuticGameOO extends ApplicationAdapter {
 
     private void restartGame() {
         scoreSystem.reset(START_LIVES);
+
+        for (FallingObject item : items) {
+            if (item instanceof FoodItem) {
+                foodItemPool.free((FoodItem) item);
+            } else if (item instanceof BadItem) {
+                badItemPool.free((BadItem) item);
+            } else if (item instanceof PowerUpItem) {
+                powerUpPool.free((PowerUpItem) item);
+            }
+        }
+
         items.clear();
+
+        for (Bullet b : bullets) {
+            bulletPool.free(b);
+        }
         bullets.clear();
     }
 

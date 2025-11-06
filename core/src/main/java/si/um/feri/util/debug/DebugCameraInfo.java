@@ -88,6 +88,7 @@ public class DebugCameraInfo {
     }
 
     // == private methods ==
+    // prebere nastavitve za debug kamero
     private void load() {
         try {
             JsonReader reader = new JsonReader();
