@@ -1,0 +1,83 @@
+
+game.png
+size: 8192, 2048
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+background
+  rotate: false
+  xy: 2, 914
+  size: 1024, 1024
+  orig: 1024, 1024
+  offset: 0, 0
+  index: -1
+bubble
+  rotate: false
+  xy: 894, 272
+  size: 640, 640
+  orig: 640, 640
+  offset: 0, 0
+  index: -1
+bullet
+  rotate: false
+  xy: 1028, 914
+  size: 1024, 1024
+  orig: 1024, 1024
+  offset: 0, 0
+  index: -1
+cd
+  rotate: false
+  xy: 2, 2
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+empty_heart
+  rotate: false
+  xy: 4106, 1138
+  size: 800, 800
+  orig: 800, 800
+  offset: 0, 0
+  index: -1
+full_heart
+  rotate: false
+  xy: 4908, 1426
+  size: 512, 512
+  orig: 512, 512
+  offset: 0, 0
+  index: -1
+hamburger
+  rotate: false
+  xy: 2, 132
+  size: 890, 780
+  orig: 890, 780
+  offset: 0, 0
+  index: -1
+player
+  rotate: false
+  xy: 2054, 914
+  size: 1024, 1024
+  orig: 1024, 1024
+  offset: 0, 0
+  index: -1
+powerup
+  rotate: false
+  xy: 4106, 1008
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+shoe
+  rotate: false
+  xy: 3080, 914
+  size: 1024, 1024
+  orig: 1024, 1024
+  offset: 0, 0
+  index: -1
+strawberry
+  rotate: false
+  xy: 894, 142
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1

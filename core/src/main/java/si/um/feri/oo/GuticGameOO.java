@@ -6,17 +6,21 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.utils.Pool;
+
+import si.um.feri.assets.AssetDescriptors;
+import si.um.feri.assets.Assets;
+import si.um.feri.assets.RegionNames;
 import si.um.feri.util.debug.DebugCameraController;
 import si.um.feri.util.debug.MemoryInfo;
 import si.um.feri.util.ViewportUtils;
@@ -30,7 +34,19 @@ public class GuticGameOO extends ApplicationAdapter {
     private OrthographicCamera camera;
     private Viewport viewport;
 
-    private Texture background, playerPic, strawberry, hamburger, shoe, cd, bullet, powerStar, bubble;
+    private TextureAtlas atlas;
+
+    private TextureRegion backgroundRegion;
+    private TextureRegion playerRegion;
+    private TextureRegion strawberryRegion;
+    private TextureRegion hamburgerRegion;
+    private TextureRegion shoeRegion;
+    private TextureRegion cdRegion;
+    private TextureRegion bulletRegion;
+    private TextureRegion powerupRegion;
+    private TextureRegion bubbleRegion;
+    private TextureRegion emptyHeartRegion;
+    private TextureRegion fullHeartRegion;
 
     private Player player;
     private Array<FallingObject> items;
@@ -53,7 +69,7 @@ public class GuticGameOO extends ApplicationAdapter {
     private float spawnInterval = 0.9f;   // vsake 0.9 s
     private float baseFallSpeed = 140f;   // zacetna hitrost padanje
 
-    private BitmapFont font, fontBig, fontSmall;
+    private BitmapFont fontSmall;
     private Sound soundYum, soundEw, soundShoot;
 
     private boolean debug = false;
@@ -84,31 +100,28 @@ public class GuticGameOO extends ApplicationAdapter {
     @Override public void create() {
         batch = new SpriteBatch();
 
-        background = new Texture("images/GuticGame/background.png");
+        Assets.get().load(AssetDescriptors.ATLAS);
+        Assets.get().load(AssetDescriptors.YUM_SOUND);
+        Assets.get().load(AssetDescriptors.EW_SOUND);
+        Assets.get().load(AssetDescriptors.SHOOT_SOUND);
+        Assets.get().load(AssetDescriptors.UI_FONT_SMALL);
+        Assets.get().finishLoading();
 
-        playerPic = new Texture("images/GuticGame/player.png");
-        playerPic.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        atlas = Assets.get().get(AssetDescriptors.ATLAS);
+        fontSmall = Assets.get().get(AssetDescriptors.UI_FONT_SMALL);
 
-        strawberry = new Texture("images/GuticGame/strawberry.png");
-        strawberry.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        backgroundRegion = atlas.findRegion(RegionNames.BACKGROUND);
+        playerRegion = atlas.findRegion(RegionNames.PLAYER);
+        strawberryRegion = atlas.findRegion(RegionNames.STRAWBERRY);
+        hamburgerRegion = atlas.findRegion(RegionNames.HAMBURGER);
+        shoeRegion = atlas.findRegion(RegionNames.SHOE);
+        cdRegion = atlas.findRegion(RegionNames.CD);
+        bulletRegion = atlas.findRegion(RegionNames.BULLET);
+        powerupRegion = atlas.findRegion(RegionNames.POWERUP);
+        bubbleRegion = atlas.findRegion(RegionNames.BUBBLE);
+        emptyHeartRegion = atlas.findRegion(RegionNames.EMPTY_HEART);
+        fullHeartRegion = atlas.findRegion(RegionNames.FULL_HEART);
 
-        hamburger = new Texture("images/GuticGame/hamburger.png");
-        hamburger.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-
-        shoe = new Texture("images/GuticGame/shoe.png");
-        shoe.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-
-        cd = new Texture("images/GuticGame/cd.png");
-        cd.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-
-        bullet = new Texture("images/GuticGame/bullet.png");
-        bullet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-
-        powerStar = new Texture("images/GuticGame/powerup.png");
-        powerStar.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-
-        bubble = new Texture("images/GuticGame/bubble.png");
-        bubble.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
         camera = new OrthographicCamera();
         viewport = new FitViewport(GAME_AREA_W, GAME_AREA_H, camera);
@@ -119,7 +132,7 @@ public class GuticGameOO extends ApplicationAdapter {
         float startX = (GAME_AREA_W - playerW) / 2f;
         float startY = 40f;
         float playerSpeed = 300f;
-        player = new Player(playerPic, startX, startY, playerW, playerH, playerSpeed, GAME_AREA_W);
+        player = new Player(playerRegion, startX, startY, playerW, playerH, playerSpeed, GAME_AREA_W);
 
         scoreSystem = new Score(START_LIVES);
         items = new Array<>();
@@ -131,51 +144,34 @@ public class GuticGameOO extends ApplicationAdapter {
                 float bw = 70f, bh = 70f;
                 float bx = 0, by = 0;
                 float bulletSpeed = 400f;
-                return new Bullet(bullet, bx, by, bw, bh, bulletSpeed);
+                return new Bullet(bulletRegion, bx, by, bw, bh, bulletSpeed);
             }
         };
 
         foodItemPool = new Pool<FoodItem>() {
             @Override
             protected FoodItem newObject() {
-                return new FoodItem(strawberry, 0, 0, 64, 64, baseFallSpeed);
+                return new FoodItem(strawberryRegion, 0, 0, 64, 64, baseFallSpeed);
             }
         };
 
         badItemPool = new Pool<BadItem>() {
             @Override
             protected BadItem newObject() {
-                return new BadItem(cd, 0, 0, 64, 64, baseFallSpeed);
+                return new BadItem(cdRegion, 0, 0, 64, 64, baseFallSpeed);
             }
         };
 
         powerUpPool = new Pool<PowerUpItem>() {
             @Override
             protected PowerUpItem newObject() {
-                return new PowerUpItem(powerStar, 0, 0, 64, 64, baseFallSpeed);
+                return new PowerUpItem(powerupRegion, 0, 0, 64, 64, baseFallSpeed);
             }
         };
 
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Baloo.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-
-        // big font
-        parameter.size = 72;
-        parameter.color = Color.valueOf("3b2e2a");
-        fontBig = generator.generateFont(parameter);
-
-        // small font
-        parameter.size = 32;
-        parameter.color = Color.valueOf("4b3f39");
-        fontSmall = generator.generateFont(parameter);
-        generator.dispose();
-
-        font = new BitmapFont();
-        font.setColor(Color.BLACK);
-
-        soundYum = Gdx.audio.newSound(Gdx.files.internal("sounds/yum.wav"));
-        soundEw = Gdx.audio.newSound(Gdx.files.internal("sounds/ew.wav"));
-        soundShoot = Gdx.audio.newSound(Gdx.files.internal("sounds/shoot.wav"));
+        soundYum = Assets.get().get(AssetDescriptors.YUM_SOUND);
+        soundEw  = Assets.get().get(AssetDescriptors.EW_SOUND);
+        soundShoot = Assets.get().get(AssetDescriptors.SHOOT_SOUND);
 
         // DEBUG
         debugCameraController = new DebugCameraController();
@@ -223,13 +219,13 @@ public class GuticGameOO extends ApplicationAdapter {
         if (paused) {
             ScreenUtils.clear(0, 0, 0, 1);
             batch.begin();
-            batch.draw(background, 0, 0, GAME_AREA_W, GAME_AREA_H);
+            batch.draw(backgroundRegion, 0, 0, GAME_AREA_W, GAME_AREA_H);
 
             String pausedText = "PAUSED";
-            GlyphLayout layout = new GlyphLayout(fontBig, pausedText);
+            GlyphLayout layout = new GlyphLayout(fontSmall, pausedText);
             float x = (GAME_AREA_W - layout.width) / 2f;
             float y = GAME_AREA_H / 2f;
-            fontBig.draw(batch, layout, x, y);
+            fontSmall.draw(batch, layout, x, y);
 
             batch.end();
             return;
@@ -308,7 +304,7 @@ public class GuticGameOO extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
-        batch.draw(background, 0, 0, GAME_AREA_W, GAME_AREA_H);
+        batch.draw(backgroundRegion, 0, 0, GAME_AREA_W, GAME_AREA_H);
 
         for (FallingObject item : items) {
             batch.draw(item.texture, item.x, item.y, item.w, item.h);
@@ -332,12 +328,13 @@ public class GuticGameOO extends ApplicationAdapter {
             float bubbleY = player.y + player.h / 2f - bubbleH / 2f;
 
             batch.setColor(1f, 1f, 1f, 0.8f);
-            batch.draw(bubble, bubbleX, bubbleY, bubbleW, bubbleH);
+            batch.draw(bubbleRegion, bubbleX, bubbleY, bubbleW, bubbleH);
             batch.setColor(1f, 1f, 1f, 1f);
         }
 
         String scoreText = "Score: " + scoreSystem.getPoints();
         // GlyphLayout scoreLayout = new GlyphLayout(fontSmall, scoreText);
+        fontSmall.setColor(Color.BLACK);
         fontSmall.draw(batch, scoreText, 20, GAME_AREA_H - 20);
         // fontSmall.draw(batch, "Hits: " + hits,  20, GAME_AREA_H - 50);
 
@@ -389,13 +386,13 @@ public class GuticGameOO extends ApplicationAdapter {
 
         if (random < 0.3f) {
             item = powerUpPool.obtain();
-            item.texture = powerStar;
+            item.texture = powerupRegion;
         } else if (random < 0.7f) {
             item = foodItemPool.obtain();
-            item.texture = MathUtils.randomBoolean() ? strawberry : hamburger;
+            item.texture = MathUtils.randomBoolean() ? strawberryRegion : hamburgerRegion;
         } else {
             item = badItemPool.obtain();
-            item.texture = MathUtils.randomBoolean() ? cd : shoe;
+            item.texture = MathUtils.randomBoolean() ? cdRegion : shoeRegion;
         }
 
         item.x = x;
@@ -443,14 +440,14 @@ public class GuticGameOO extends ApplicationAdapter {
         ScreenUtils.clear(0.85f, 0.93f, 0.94f, 1f);
         batch.begin();
 
-        batch.draw(background, 0, 0, GAME_AREA_W, GAME_AREA_H);
+        batch.draw(backgroundRegion, 0, 0, GAME_AREA_W, GAME_AREA_H);
 
-        font.getData().setScale(2f);
+        fontSmall.getData().setScale(1f);
         String overText = "GAME OVER";
-        GlyphLayout layout = new GlyphLayout(fontBig, overText);
+        GlyphLayout layout = new GlyphLayout(fontSmall, overText);
         float x = (GAME_AREA_W - layout.width) / 2f;
         float y = GAME_AREA_H / 2f + 60f;
-        fontBig.draw(batch, layout, x, y);
+        fontSmall.draw(batch, layout, x, y);
 
         String restartText = "Press ENTER to Restart";
         layout.setText(fontSmall, restartText);
@@ -471,29 +468,15 @@ public class GuticGameOO extends ApplicationAdapter {
 
     @Override public void dispose() {
         batch.dispose();
-        background.dispose();
-        playerPic.dispose();
-        strawberry.dispose();
-        hamburger.dispose();
-        shoe.dispose();
-        cd.dispose();
-        powerStar.dispose();
-        bubble.dispose();
-        font.dispose();
-        bullet.dispose();
-        soundYum.dispose();
-        soundEw.dispose();
-        soundShoot.dispose();
-        font.dispose();
-        fontBig.dispose();
-        fontSmall.dispose();
         shapeRenderer.dispose();
+        scoreSystem.dispose();
         for (FallingObject item : items) {
             if (item instanceof PowerUpItem) {
                 ((PowerUpItem) item).dispose();
             }
         }
-        scoreSystem.dispose();
+
+        Assets.get().dispose();
     }
 }
 

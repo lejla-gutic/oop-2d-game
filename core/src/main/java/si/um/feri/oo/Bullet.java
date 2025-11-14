@@ -1,11 +1,12 @@
 package si.um.feri.oo;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Pool;
 
 public class Bullet extends DynamicGameObject implements Pool.Poolable{
     public boolean activeBullet = false;
-    public Bullet(Texture texture, float x, float y, float w, float h, float speed) {
+    public Bullet(TextureRegion texture, float x, float y, float w, float h, float speed) {
         super(texture, x, y, w, h, speed);
     }
 

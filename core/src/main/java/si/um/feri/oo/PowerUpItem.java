@@ -3,9 +3,11 @@ package si.um.feri.oo;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+
 public class PowerUpItem extends FallingObject{
     private ParticleEffect sparkleEffect;
-    public PowerUpItem(Texture texture, float x, float y, float w, float h, float speed) {
+    public PowerUpItem(TextureRegion texture, float x, float y, float w, float h, float speed) {
         super(texture, x, y, w, h, speed);
 
         sparkleEffect = new ParticleEffect();

@@ -1,12 +1,13 @@
 package si.um.feri.oo;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 public class Player extends GameObject {
     public float moveSpeed;
     public float gameWidth;
 
-    public Player(Texture texture, float x, float y, float w, float h, float moveSpeed, float gameWidth) {
+    public Player(TextureRegion texture, float x, float y, float w, float h, float moveSpeed, float gameWidth) {
         super(texture, x, y, w, h);
         this.moveSpeed = moveSpeed;
         this.gameWidth = gameWidth;

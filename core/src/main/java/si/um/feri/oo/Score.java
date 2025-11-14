@@ -1,17 +1,24 @@
 package si.um.feri.oo;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+
+import si.um.feri.assets.AssetDescriptors;
+import si.um.feri.assets.Assets;
+import si.um.feri.assets.RegionNames;
+
 public class Score {
+
     private int points;
     private int lives;
     private boolean gameOver;
 
-    private Texture heartFull;
-    private Texture heartEmpty;
+    private TextureRegion heartFullRegion;
+    private TextureRegion heartEmptyRegion;
+
     private ParticleEffect[] heartGlows;
 
     private static final float HEART_SIZE = 36f;
@@ -27,13 +34,19 @@ public class Score {
         this.lives = startLives;
         this.gameOver = false;
 
-        heartFull = new Texture(Gdx.files.internal("images/GuticGame/full_heart.png"));
-        heartEmpty = new Texture(Gdx.files.internal("images/GuticGame/empty_heart.png"));
+        // 🔥 Load atlas from AssetManager
+        TextureAtlas atlas = Assets.get().get(AssetDescriptors.ATLAS);
 
+        // 🔥 Heart regions from atlas
+        heartFullRegion = atlas.findRegion(RegionNames.FULL_HEART);
+        heartEmptyRegion = atlas.findRegion(RegionNames.EMPTY_HEART);
+
+        // 🔥 Particle effects stay the same
         heartGlows = new ParticleEffect[startLives];
         for (int i = 0; i < startLives; i++) {
             heartGlows[i] = new ParticleEffect();
-            heartGlows[i].load(Gdx.files.internal("particles/glow.p"), Gdx.files.internal("particles"));
+            heartGlows[i].load(Gdx.files.internal("particles/glow.p"),
+                Gdx.files.internal("particles"));
             heartGlows[i].start();
         }
     }
@@ -47,15 +60,19 @@ public class Score {
             float hx = startX + i * (HEART_SIZE + SPACING) + HEART_SIZE / 2f;
             float hy = y + HEART_SIZE / 2f;
 
-            // Glow samo za aktivna srca
+            // glowing for active hearts
             if (i < lives) {
                 heartGlows[i].setPosition(hx, hy);
                 heartGlows[i].update(Gdx.graphics.getDeltaTime());
                 heartGlows[i].draw(batch);
             }
 
-            Texture current = (i < lives) ? heartFull : heartEmpty;
-            batch.draw(current, startX + i * (HEART_SIZE + SPACING), y, HEART_SIZE, HEART_SIZE);
+            TextureRegion current = (i < lives) ? heartFullRegion : heartEmptyRegion;
+            batch.draw(current,
+                startX + i * (HEART_SIZE + SPACING),
+                y,
+                HEART_SIZE,
+                HEART_SIZE);
         }
     }
 
@@ -97,11 +114,8 @@ public class Score {
     }
 
     public void dispose() {
-        heartFull.dispose();
-        heartEmpty.dispose();
         for (ParticleEffect effect : heartGlows) {
             effect.dispose();
         }
     }
-
 }
