@@ -8,7 +8,7 @@ public class FallingItem {
     public float fallSpeed;
     public boolean isFood;
     public Texture texture;
-    public Rectangle rect = new Rectangle(); // za provjeru sudara
+    public Rectangle rect = new Rectangle();
 
     public FallingItem(Texture texture, float x, float y, float w, float h, float fallSpeed, boolean isFood) {
         this.texture = texture;
@@ -20,7 +20,7 @@ public class FallingItem {
     }
 
     public void update(float dt) {
-        y -= fallSpeed * dt; // pomjeri se na dole brzinom fallSpeed skalirano s vremenom
-        rect.setPosition(x, y); // azuriramo rectangle da htbox prati objekt
+        y -= fallSpeed * dt;
+        rect.setPosition(x, y);
     }
 }

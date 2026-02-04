@@ -24,7 +24,7 @@ public class GuticGame extends ApplicationAdapter {
     private SpriteBatch batch;
     private Texture background, player, strawberry, hamburger, shoe, cd, heartFull, heartEmpty, bullet;
     private OrthographicCamera camera;
-    private Viewport viewport;  // razlicitim dimenzije
+    private Viewport viewport;
 
     private float playerX, playerY;
     private float playerW = 180, playerH = 180;
@@ -40,8 +40,8 @@ public class GuticGame extends ApplicationAdapter {
     private Array<Bullet> bullets = new Array<>();
 
     private float spawnTimer = 0f;
-    private float spawnInterval = 0.9f;   // na početku ~svakih 0.9 s
-    private float baseFallSpeed = 140f;   // početna brzina padanja
+    private float spawnInterval = 0.9f;
+    private float baseFallSpeed = 140f;
 
     private BitmapFont font;
     private BitmapFont fontBig;
@@ -52,13 +52,13 @@ public class GuticGame extends ApplicationAdapter {
     private Sound soundShoot;
 
     private void spawnItem(){
-        boolean isFood = MathUtils.randomBoolean(0.6f); // // 70% hrana, 30% ne-hrana
+        boolean isFood = MathUtils.randomBoolean(0.6f);
 
         float w=64f, h=64f;
-        float x = MathUtils.random(16f, GAME_AREA_W - w - 16f); // // slučajna X pozicija
-        float y = GAME_AREA_H + h; // kreni malo iznad vrha
+        float x = MathUtils.random(16f, GAME_AREA_W - w - 16f);
+        float y = GAME_AREA_H + h;
 
-        float fallSpeed = baseFallSpeed + MathUtils.random(-20f, 30f); // random brzina padanja
+        float fallSpeed = baseFallSpeed + MathUtils.random(-20f, 30f);
 
         Texture texture;
         if (isFood) {
@@ -81,7 +81,7 @@ public class GuticGame extends ApplicationAdapter {
 
     private void spawnBullet() {
         float bw = 70f, bh = 70f;
-        float bx = playerX + playerW/2f - bw/2f; // centriraj iznad igraca
+        float bx = playerX + playerW/2f - bw/2f;
         float by = playerY + playerH;
         float bulletSpeed = 400f;
         bullets.add(new Bullet(bullet, bx, by, bw, bh, bulletSpeed));
@@ -96,7 +96,7 @@ public class GuticGame extends ApplicationAdapter {
     }
 
     private void drawGameOver() {
-        ScreenUtils.clear(0.85f, 0.93f, 0.94f, 1f); // boja pozadine
+        ScreenUtils.clear(0.85f, 0.93f, 0.94f, 1f);
 
         batch.begin();
 
@@ -109,7 +109,6 @@ public class GuticGame extends ApplicationAdapter {
         float y = GAME_AREA_H / 2f + 60f;
         fontBig.draw(batch, layout, x, y);
 
-        // centriranje
         String restartText = "Press ENTER to Restart";
         layout.setText(fontSmall, restartText);
         x = (GAME_AREA_W - layout.width) / 2f;
@@ -118,19 +117,18 @@ public class GuticGame extends ApplicationAdapter {
 
         batch.end();
 
-        // ako pritisneš ENTER → restart igre
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             restartGame();
         }
     }
 
     @Override public void create() {
-        batch = new SpriteBatch();  // batch - paket, SpriteBatech - crta sve slike u jednom potezu
+        batch = new SpriteBatch();
 
         background = new Texture("images/GuticGame/background.png");
 
         player = new Texture("images/GuticGame/player.png");
-        player.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear); // za ljepsi izgled slike
+        player.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
         strawberry = new Texture("images/GuticGame/strawberry.png");
         strawberry.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
@@ -156,12 +154,10 @@ public class GuticGame extends ApplicationAdapter {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Baloo.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
-        // veliki font za "Game Over"
         parameter.size = 72;
-        parameter.color = Color.valueOf("3b2e2a"); // topla tamnosmeđa nijansa
+        parameter.color = Color.valueOf("3b2e2a");
         fontBig = generator.generateFont(parameter);
 
-        // manji font za tekst i score
         parameter.size = 32;
         parameter.color = Color.valueOf("4b3f39");
         fontSmall = generator.generateFont(parameter);
@@ -181,22 +177,22 @@ public class GuticGame extends ApplicationAdapter {
         viewport = new FitViewport(GAME_AREA_W, GAME_AREA_H, camera);
         viewport.apply();
 
-        playerX = (GAME_AREA_W - playerW) / 2f; // centar po sirini
-        playerY = 40f; // 40 piksela od dna ekrana (kao da stoji na stolu)
+        playerX = (GAME_AREA_W - playerW) / 2f;
+        playerY = 40f;
     }
 
     @Override public void render() {
         if (gameOver) {
             drawGameOver();
-            return; // prekini ostatak render metode
+            return;
         }
 
         ScreenUtils.clear(0,0,0,1);
-        float dt = Gdx.graphics.getDeltaTime(); // vrijeme koje je proslo od prethodnog frame - pomnozit cemo brzine s dt da bude neodvisno kretanje (spori i brzi racunar)
+        float dt = Gdx.graphics.getDeltaTime();
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) playerX -= playerSpeed * dt;
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) playerX += playerSpeed * dt;
-        playerX = Math.max(0, Math.min(playerX, GAME_AREA_W - playerW)); // ne da liku da ide van granica
+        playerX = Math.max(0, Math.min(playerX, GAME_AREA_W - playerW));
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && !gameOver) {
             soundShoot.play(0.5f);
@@ -206,17 +202,17 @@ public class GuticGame extends ApplicationAdapter {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
-        spawnTimer += dt; // mjeri koliko je proslo od zadnjeg spawna (dodamo dt, vrijeme izmedju frameova)
+        spawnTimer += dt;
         if (spawnTimer >= spawnInterval && items.size < 10) {
             spawnTimer = 0f;
             spawnItem();
         }
 
         Rectangle playerRect = new Rectangle(playerX, playerY, playerW, playerH);
-        // objekti
+
         for (int i = items.size - 1; i >= 0; i--) {
             FallingItem item = items.get(i);
-            item.update(dt); // padanje objekta
+            item.update(dt);
 
             if (item.rect.overlaps(playerRect)) {
                 if (item.isFood) {
@@ -234,9 +230,9 @@ public class GuticGame extends ApplicationAdapter {
                 continue;
             }
 
-            if (item.y + item.h < 0) { // ispod dna
+            if (item.y + item.h < 0) {
                 if (!item.isFood) {
-                    lives -= 1; // isto prvo oduzmi
+                    lives -= 1;
                     if (lives <= 0) {
                         lives = 0;
                         gameOver = true;
@@ -246,12 +242,10 @@ public class GuticGame extends ApplicationAdapter {
             }
         }
 
-        // update metaka
         for (int i = bullets.size - 1; i >= 0; i--) {
             Bullet bullet = bullets.get(i);
             bullet.update(dt);
 
-            // provjerim sudar s padajucim objektima
             for (int j = items.size - 1; j >= 0; j--) {
                 FallingItem item = items.get(j);
 
@@ -265,7 +259,6 @@ public class GuticGame extends ApplicationAdapter {
                 }
             }
 
-            // ako metak izadje iz ekrana, uklonim ga
             if (bullet.y > GAME_AREA_H) {
                 bullets.removeIndex(i);
             }
@@ -291,13 +284,12 @@ public class GuticGame extends ApplicationAdapter {
         String scoreText = "Score: " + score;
         GlyphLayout scoreLayout = new GlyphLayout(fontSmall, scoreText);
         fontSmall.draw(batch, scoreText, 20, GAME_AREA_H - 20);
-       // fontSmall.draw(batch, "Hits: " + hits,  20, GAME_AREA_H - 50);
 
-        float heartSize = 36f;             // veličina svakog srca (px)
-        float spacing = 8f;                // razmak između srca
+        float heartSize = 36f;
+        float spacing = 8f;
         float totalWidth = (heartSize + spacing) * maxLives;
-        float startX = GAME_AREA_W - totalWidth - 20f; // malo odmaknuto od desnog ruba
-        float y = GAME_AREA_H - 48f;       // vertikalna pozicija (blizu vrha)
+        float startX = GAME_AREA_W - totalWidth - 20f;
+        float y = GAME_AREA_H - 48f;
 
         for (int i = 0; i < maxLives; i++) {
             Texture current = (i < lives) ? heartFull : heartEmpty;

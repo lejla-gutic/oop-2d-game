@@ -1,33 +1,110 @@
-# GuticGame
+# 🧁 Cupcake Game
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+Cupcake Gamee is a simple 2D arcade-style game where the player controls a cupcake character and interacts with falling items.  
+The objective is to collect good items to increase the score, avoid harmful ones, and survive as long as possible using power-ups and projectiles.
 
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+---
 
-## Platforms
+## 🎮 Gameplay
 
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
+- Control the cupcake character and move horizontally.
+- Collect good items to increase your score.
+- Avoid bad items or destroy them using bullets.
+- Use power-ups to gain temporary protection (shield).
+- The game ends when all lives are lost.
 
-## Gradle
+---
 
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
+## 🍓 Item Types
 
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
+- **Good Items** – Increase the player’s score.
+- **Bad Items** – Reduce player lives on collision.
+- **Power-Up Items** – Grant temporary immunity (shield).
+- **Bullets** – Destroy bad items before they reach the player.
 
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
+---
+
+## ❤️ Scoring & Lives
+
+- Each collected good item increases the score.
+- Collisions with bad items reduce lives.
+- While a power-up is active, bad items do not reduce lives.
+
+---
+
+## 🧠 Technical Overview
+
+The game is built with an object-oriented design using core entities such as the player, falling objects, collectible items, power-ups, and projectiles.
+
+The project contains multiple launchers, including:
+- a basic version,
+- an OOP-focused version,
+- and a world-units / debugging-oriented launcher.
+
+### Debug & World Units
+The project includes debugging utilities for:
+- **Debug camera controls** (move/zoom/reset/log) for desktop runs
+- **World grid rendering** to visualize world units and viewport bounds
+- **Memory info overlay** (Java heap / native heap)
+
+---
+
+## 🛠️ Technologies Used
+
+- Java
+- LWJGL 3
+- 2D game rendering
+- Object-Oriented Programming (OOP)
+
+---
+
+## 🚀 How to Run
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/lejla-gutic/oop-2d-game.git
+   ```
+2. Open the project in your preferred IDE.
+3. Navigate to the desktop launcher package:
+   ```swift
+   lwjgl3/src/main/java/si/um/feri/Gutic/lwjgl3
+   ```
+4. Run one of the available launcher classes:
+    - Lwjgl3Launcher – basic version
+    - Lwjgl3LauncherOO – object-oriented version
+    - Lwjgl3LauncherWorldUnits – world units + debugging utilities
+
+---
+
+## 🐞 Debug Controls
+Debug camera input is available on Desktop builds.
+
+### Default controls
+- Move camera: W / A / S / D
+- Zoom in: , (comma)
+- Zoom out: . (period)
+- Reset camera: Backspace
+- Log camera info: Enter
+
+### Configuration
+Key bindings and speeds can be configured in:
+```pgsql
+assets/debug/debugCameraInfo.json
+```
+
+---
+
+## 📸 Screenshots
+
+![](screenshots/game.png)
+
+---
+
+## 👤 Author
+- **Lejla Gutic**
+- GitHub: [lejla-gutic](https://github.com/lejla-gutic)
+
+---
+
+## 📄 License
+This project is licensed under the MIT License.

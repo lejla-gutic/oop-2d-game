@@ -34,14 +34,11 @@ public class Score {
         this.lives = startLives;
         this.gameOver = false;
 
-        // 🔥 Load atlas from AssetManager
         TextureAtlas atlas = Assets.get().get(AssetDescriptors.ATLAS);
 
-        // 🔥 Heart regions from atlas
         heartFullRegion = atlas.findRegion(RegionNames.FULL_HEART);
         heartEmptyRegion = atlas.findRegion(RegionNames.EMPTY_HEART);
 
-        // 🔥 Particle effects stay the same
         heartGlows = new ParticleEffect[startLives];
         for (int i = 0; i < startLives; i++) {
             heartGlows[i] = new ParticleEffect();
@@ -60,7 +57,6 @@ public class Score {
             float hx = startX + i * (HEART_SIZE + SPACING) + HEART_SIZE / 2f;
             float hy = y + HEART_SIZE / 2f;
 
-            // glowing for active hearts
             if (i < lives) {
                 heartGlows[i].setPosition(hx, hy);
                 heartGlows[i].update(Gdx.graphics.getDeltaTime());

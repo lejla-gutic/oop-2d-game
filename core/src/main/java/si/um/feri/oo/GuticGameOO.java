@@ -66,8 +66,8 @@ public class GuticGameOO extends ApplicationAdapter {
     private float powerUpDuration = 5f;
 
     private float spawnTimer = 0f;
-    private float spawnInterval = 0.9f;   // vsake 0.9 s
-    private float baseFallSpeed = 140f;   // zacetna hitrost padanje
+    private float spawnInterval = 0.9f;
+    private float baseFallSpeed = 140f;
 
     private BitmapFont fontSmall;
     private Sound soundYum, soundEw, soundShoot;
@@ -237,10 +237,10 @@ public class GuticGameOO extends ApplicationAdapter {
             spawnItem();
         }
 
-        // objekti
+        // objects
         for (int i = items.size - 1; i >= 0; i--) {
             FallingObject item = items.get(i);
-            item.update(dt); // padanje objekta
+            item.update(dt);
 
             if (item.rect.overlaps(player.rect)) {
                 item.onCollision(this);
@@ -275,7 +275,7 @@ public class GuticGameOO extends ApplicationAdapter {
             }
         }
 
-        // bulltes
+        // bullets
         for (int i = bullets.size - 1; i >= 0; i--) {
             Bullet bullet = bullets.get(i);
             bullet.update(dt);
@@ -333,10 +333,8 @@ public class GuticGameOO extends ApplicationAdapter {
         }
 
         String scoreText = "Score: " + scoreSystem.getPoints();
-        // GlyphLayout scoreLayout = new GlyphLayout(fontSmall, scoreText);
         fontSmall.setColor(Color.BLACK);
         fontSmall.draw(batch, scoreText, 20, GAME_AREA_H - 20);
-        // fontSmall.draw(batch, "Hits: " + hits,  20, GAME_AREA_H - 50);
 
         float heartSize = 36f;
         float spacing = 8f;
@@ -351,14 +349,12 @@ public class GuticGameOO extends ApplicationAdapter {
         if (debug) {
             debugCameraController.applyTo(camera);
 
-            // tekstualne informacije
             batch.begin();
             fontSmall.setColor(Color.YELLOW);
             fontSmall.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), GAME_AREA_W - 120, GAME_AREA_H - 20);
             memoryInfo.render(batch, fontSmall);
             batch.end();
 
-            // mreža
             ViewportUtils.drawGrid(viewport, shapeRenderer, 50);
 
             shapeRenderer.setProjectionMatrix(camera.combined);
@@ -406,7 +402,7 @@ public class GuticGameOO extends ApplicationAdapter {
     }
 
     private void spawnBullet() {
-        Bullet b = bulletPool.obtain(); // uzamem en bullet iz poola
+        Bullet b = bulletPool.obtain();
         b.activeBullet = true;
         b.x = player.x + player.w / 2f - b.w / 2f;
         b.y = player.y + player.h;
